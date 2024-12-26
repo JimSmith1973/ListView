@@ -1,29 +1,29 @@
-// Template.cpp
+// ListView.cpp
 
-#include "Template.h"
+#include "ListView.h"
 
 // Global variables
-ListBoxWindow g_listBoxWindow;
+ListViewWindow g_listViewWindow;
 StatusBarWindow g_statusBarWindow;
 
-void ListBoxWindowSelectionChangedFunction( LPTSTR lpszItemText )
+void ListViewWindowSelectionChangedFunction( LPTSTR lpszItemText )
 {
 	// Show item text on status bat window
 	g_statusBarWindow.SetText( lpszItemText );
 
-} // End of function ListBoxWindowSelectionChangedFunction
+} // End of function ListViewWindowSelectionChangedFunction
 
-void ListBoxWindowDoubleClickFunction( LPTSTR lpszItemText )
+void ListViewWindowDoubleClickFunction( LPTSTR lpszItemText )
 {
 	// Display item text
 	MessageBox( NULL, lpszItemText, INFORMATION_MESSAGE_CAPTION, ( MB_OK | MB_ICONINFORMATION ) );
 
-} // End of function ListBoxWindowDoubleClickFunction
+} // End of function ListViewWindowDoubleClickFunction
 
 void OpenFileFunction( LPCTSTR lpszFilePath )
 {
 	// Add file to list box window
-	g_listBoxWindow.AddText( lpszFilePath );
+	g_listViewWindow.AddItem( lpszFilePath );
 
 } // End of function OpenFileFunction
 
@@ -68,7 +68,7 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMessage, WPARAM wPara
 			hInstance = ( ( LPCREATESTRUCT )lParam )->hInstance;
 
 			// Create list box window
-			if( g_listBoxWindow.Create( hWndMain, hInstance ) )
+			if( g_listViewWindow.Create( hWndMain, hInstance ) )
 			{
 				// Successfully created list box window
 				Font font;
@@ -77,7 +77,7 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMessage, WPARAM wPara
 				font = DEFAULT_GUI_FONT;
 
 				// Set list box window font
-				g_listBoxWindow.SetFont( font );
+				g_listViewWindow.SetFont( font );
 
 				// Create status bar window
 				if( g_statusBarWindow.Create( hWndMain, hInstance ) )
@@ -102,7 +102,7 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMessage, WPARAM wPara
 			int nClientHeight;
 			RECT rcStatus;
 			int nStatusWindowHeight;
-			int nListBoxWindowHeight;
+			int nListViewWindowHeight;
 
 			// Store client width and height
 			nClientWidth	= ( int )LOWORD( lParam );
@@ -116,10 +116,10 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMessage, WPARAM wPara
 
 			// Calculate window sizes
 			nStatusWindowHeight		= ( rcStatus.bottom - rcStatus.top );
-			nListBoxWindowHeight	= ( nClientHeight - nStatusWindowHeight );
+			nListViewWindowHeight	= ( nClientHeight - nStatusWindowHeight );
 
 			// Move list box window
-			g_listBoxWindow.Move( 0, 0, nClientWidth, nListBoxWindowHeight, TRUE );
+			g_listViewWindow.Move( 0, 0, nClientWidth, nListViewWindowHeight, TRUE );
 
 			// Break out of switch
 			break;
@@ -130,7 +130,7 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMessage, WPARAM wPara
 			// An activate message
 
 			// Focus on list box window
-			g_listBoxWindow.SetFocus();
+			g_listViewWindow.SetFocus();
 
 			// Break out of switch
 			break;
@@ -205,12 +205,12 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMessage, WPARAM wPara
 					// Default command
 
 					// See if command message is from list box window
-					if( ( HWND )lParam == g_listBoxWindow )
+					if( ( HWND )lParam == g_listViewWindow )
 					{
 						// Command message is from list box window
-
+/*
 						// Handle command message from list box window
-						if( !( g_listBoxWindow.HandleCommandMessage( wParam, lParam, ListBoxWindowSelectionChangedFunction, ListBoxWindowDoubleClickFunction ) ) )
+						if( !( g_listViewWindow.HandleCommandMessage( wParam, lParam, ListViewWindowSelectionChangedFunction, ListViewWindowDoubleClickFunction ) ) )
 						{
 							// Command message was not handled from list box window
 
@@ -218,7 +218,7 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMessage, WPARAM wPara
 							lr = DefWindowProc( hWndMain, uMessage, wParam, lParam );
 
 						} // End of command message was not handled from list box window
-
+*/
 					} // End of command message is from list box window
 					else
 					{
@@ -388,6 +388,24 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow )
 
 			// Update main window
 			mainWindow.Update();
+
+			// Add columns to list view window
+			g_listViewWindow.AddColumn( "Column 1" );
+			g_listViewWindow.AddColumn( "Column 2" );
+			g_listViewWindow.AddColumn( "Column 3" );
+
+			// Add items to list view window
+			g_listViewWindow.AddItem( "Item 1" );
+			g_listViewWindow.AddItem( "Item 2" );
+			g_listViewWindow.AddItem( "Item 3" );
+
+			// Set item texts on list view window
+			g_listViewWindow.SetItemText( 1, 1, "Item 2, Column 2" );
+			g_listViewWindow.SetItemText( 0, 2, "Item 1, Column 3" );
+			g_listViewWindow.SetItemText( 2, 2, "Item 3, Column 3" );
+
+			// Auto-size all list view window columns
+			g_listViewWindow.AutoSizeAllColumns();
 
 			// Message loop
 			while( message.Get() > 0 )
