@@ -20,6 +20,31 @@ void ListViewWindowDoubleClickFunction( LPTSTR lpszItemText )
 
 } // End of function ListViewWindowDoubleClickFunction
 
+int CALLBACK ListViewWindowCompare( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort )
+{
+	int nResult = 0;
+
+	// Allocate string memory
+	LPTSTR lpszItemText1 = new char[ STRING_LENGTH + sizeof( char ) ];
+	LPTSTR lpszItemText2 = new char[ STRING_LENGTH + sizeof( char ) ];
+
+	// Get first item text
+	g_listViewWindow.GetItemText( lParam1, lParamSort, lpszItemText1 );
+
+	// Get second item text
+	g_listViewWindow.GetItemText( lParam2, lParamSort, lpszItemText2 );
+
+	// Compare item texts
+	nResult = lstrcmpi( lpszItemText1, lpszItemText2 );
+
+	// Free string memory
+	delete [] lpszItemText1;
+	delete [] lpszItemText2;
+
+	return nResult;
+
+} // End of function ListViewWindowCompare
+
 void OpenFileFunction( LPCTSTR lpszFilePath )
 {
 	// Add file to list box window
@@ -204,30 +229,8 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMessage, WPARAM wPara
 				{
 					// Default command
 
-					// See if command message is from list box window
-					if( ( HWND )lParam == g_listViewWindow )
-					{
-						// Command message is from list box window
-/*
-						// Handle command message from list box window
-						if( !( g_listViewWindow.HandleCommandMessage( wParam, lParam, ListViewWindowSelectionChangedFunction, ListViewWindowDoubleClickFunction ) ) )
-						{
-							// Command message was not handled from list box window
-
-							// Call default procedure
-							lr = DefWindowProc( hWndMain, uMessage, wParam, lParam );
-
-						} // End of command message was not handled from list box window
-*/
-					} // End of command message is from list box window
-					else
-					{
-						// Command message is not from list box window
-
-						// Call default procedure
-						lr = DefWindowProc( hWndMain, uMessage, wParam, lParam );
-
-					} // End of command message is not from list box window
+					// Call default procedure
+					lr = DefWindowProc( hWndMain, uMessage, wParam, lParam );
 
 					// Break out of switch
 					break;
@@ -279,9 +282,35 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMessage, WPARAM wPara
 		case WM_NOTIFY:
 		{
 			// A notify message
+			LPNMHDR lpNmHdr;
 
-			// Call default handler
-			lr = DefWindowProc( hWndMain, uMessage, wParam, lParam );
+			// Get notify message handler
+			lpNmHdr = ( LPNMHDR )lParam;
+
+			// See if notify message is from list view window
+			if( lpNmHdr->hwndFrom == g_listViewWindow )
+			{
+				// Notify message is from list view window
+
+				// Handle notify message from list view window
+				if( !( g_listViewWindow.HandleNotifyMessage( wParam, lParam, &ListViewWindowSelectionChangedFunction, &ListViewWindowDoubleClickFunction, &ListViewWindowCompare ) ) )
+				{
+					// Notify message was not handled from list view window
+
+					// Call default handler
+					lr = DefWindowProc( hWndMain, uMessage, wParam, lParam );
+
+				} // End of notify message was not handled from list view window
+
+			} // End of notify message is from list view window
+			else
+			{
+				// Notify message is not from list view window
+
+				// Call default handler
+				lr = DefWindowProc( hWndMain, uMessage, wParam, lParam );
+
+			} // End of notify message is not from list view window
 
 			// Break out of switch
 			break;
